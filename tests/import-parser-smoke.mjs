@@ -1,0 +1,11 @@
+import fs from 'node:fs';
+import { parseAny, countQuestionMarkers, isImportable } from '../src/lib/parser.js';
+const sample=fs.readFileSync(new URL('../sample-user.md',import.meta.url),'utf8');
+const parsed=parseAny(sample);
+const markers=countQuestionMarkers(sample);
+const complete=parsed.filter(isImportable).length;
+if(markers!==100||parsed.length!==100||complete!==100) throw new Error(`Parser regression: markers=${markers}, parsed=${parsed.length}, complete=${complete}`);
+const math=parsed.find(q=>q.question.includes('বায়োমাসের পিরামিডে'));
+if(!math?.answer?.includes('g/m^2')) throw new Error('Math preservation regression');
+if(math.topic!=='টপিক ০২: ইকোসিস্টেম বা বাস্তুতন্ত্র') throw new Error('Path preservation regression');
+console.log('Quanta v7 local parser smoke test passed:',{markers,parsed:parsed.length,complete,math:math.answer});
